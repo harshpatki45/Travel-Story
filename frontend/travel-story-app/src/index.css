@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Poppins:wght@500&family=Roboto:ital@1&display=swap');
+
+@import "tailwindcss";
+
+.rdp-root{
+  --rdp-accent-color: #01b0cb/* Change the accent color to indigo.*/
+
+ --rdp-accent-background-color: #dffbff;  /*Change the accent background color.  */
+
+--rdp-day_button-border-radius: 8px;
+
+--rdp-selected-font: bold medium var(-rdp-font-family);
+}
+
+@layer base {
+  html {
+    font-family: "Poppins", "sans-serif";
+  }
+
+  body{
+    background-color: #fdfeff;
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  .input-box {
+    @apply w-full text-sm bg-cyan-600/5 rounded px-5 py-3 mb-4 outline-none
+  }
+
+  .btn-primary {
+    @apply w-full text-sm font-medium text-white bg-cyan-500 shadow-lg shadow-cyan-200/50 p-[10px] rounded-full my-1 hover:bg-cyan-100 hover:text-white;
+  }
+
+  .btn-light {
+    @apply w-full text-sm font-medium text-black bg-cyan-500 shadow-lg shadow-cyan-200/50 p-[10px] rounded-full my-1 hover:bg-cyan-100 hover:text-gray-600;
+  }
+
+  .login-ui-box{
+    @apply w-80 h-[450px] rounded-full bg-cyan-500  rotate-45
+  }
+
+  .icon-btn{
+    @apply text-[22px] text-slate-300 cursor-pointer hover:text-red-500;
+  }
+}
