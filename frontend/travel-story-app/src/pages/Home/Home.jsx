@@ -8,18 +8,24 @@ import { MdAdd } from "react-icons/md";
 import Modal from "react-modal";
 import AddEditTravelStory from './AddEditTravelStory';
 import ViewTravelStory from './ViewTravelStory';
+import EmptyCard from '../../components/EmptyCard';
+import { DayPicker } from 'react-day-picker';
+import moment from 'moment';
+import FilterInfoTitle from '../../components/FilterInfoTitle';
 
 const Home = () => {
 
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [allStories, setAllStories] = useState([])
   const [openAddEditModal, setOpenAddEditModal] = useState({
     isShown: false,
     type: "add",
     data: null,
   })
-
+  const [filterType, setFilterType] = useState('')
+  const [dateRange, setDateRange] = useState({from:null, to:null})
   const [openViewModal, setOpenViewModal] = useState({
     isShown: false,
     data: null,
@@ -107,6 +113,62 @@ const Home = () => {
 
   }
 
+  // Search Story
+  const onSeachStory = async(query) => {
+    try {
+      const response = await axiosInstance.get("/search", {
+        params: {
+          query
+        }
+      })
+
+      if (response.data && response.data.stories) {
+        setFilterType("search")
+        setAllStories(response.data.stories)
+      }
+    } catch (error) {
+      console.log("An unexpected error has occured", error)
+    }
+  }
+
+  const handleClearSearch = () => {
+    setFilterType("");
+    getAllStories();
+  }
+
+  // Handle filter travel by date range
+  const filterStoriesByDate =async(day) => {
+    try {
+      const startDate = day.from ? moment(day.from).valueOf(): null;
+      const endDate = day.to ? moment(day.to).valueOf(): null;
+
+      if(startDate && endDate) {
+        const response = await axiosInstance.get("/travel-stories/filter", {
+          params:{ startDate, endDate},
+        });
+
+        if(response.data && response.data.stories){
+          setFilterType("date");
+          setAllStories(response.data.stories)
+        }
+      }
+    } catch (error) {
+      console.log("An unexpected Error has occured", error)
+    }
+  };
+
+  //Handle Date Range Select
+  const handleDayClick =(day) => {
+    setDateRange(day);
+    filterStoriesByDate(day);
+  }
+
+  const resetFilter=() => {
+    setDateRange({ from:null, to:null })
+    setFilterType("");
+    getAllStories();
+  }
+
   useEffect(() => {
     getAllStories();
     getUserInfo();
@@ -116,10 +178,19 @@ const Home = () => {
 
   return (
     <>
-      <Navbar userInfo={userInfo} />
+      <Navbar userInfo={userInfo} searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearchNote={onSeachStory} handleClearSearch={handleClearSearch} />
       {/* {JSON.stringify(userInfo)} */}
 
       <div className='container mx-auto py-10'>
+
+        <FilterInfoTitle
+        filterType={filterType}
+        filterDates={dateRange}
+        onClear={()=> {
+          resetFilter();
+        }}
+         />
+
         <div className='flex gap-7'>
           <div className='flex-1'>
             {allStories.length > 0 ? (
@@ -142,11 +213,24 @@ const Home = () => {
                 })}
               </div>
             ) : (
-              <>Empty Card Here</>
+              <EmptyCard message={`Start creating you firstTravel Story! Click the 'Add button to join down
+                your thoughts, ideas, and memories. Let's get started!`} />
             )}
           </div>
 
-          <div className='w-[320px]'></div>
+          <div className='w-[350px]'>
+            <div className='bg-white border border-slate-200 shadow-lg shadow-slate-200/60 rounded-lg'>
+            <div className='p-3'>
+              <DayPicker
+              captionLayout = 'dropdown-buttons'
+              mode="range"
+              selected={dateRange}
+              onSelect={handleDayClick}
+              pageNavigation
+               />
+            </div>
+            </div>
+          </div>
         </div>
 
       </div>
